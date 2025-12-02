@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Pipboy.Wallpaper": {
+      "commandName": "Project",
+      "commandLineArgs": "--test1 1 --test2 2"
+    }
+  }
+}
