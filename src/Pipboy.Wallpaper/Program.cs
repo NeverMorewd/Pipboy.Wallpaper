@@ -19,34 +19,38 @@ public static class Program
     {
         Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
         AttachConsole(ATTACH_PARENT_PROCESS);
-
-        try
-        {
-            var config = new ConfigurationBuilder()
+        var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .AddCommandLine(args)
                 .AddEnvironmentVariables()
                 .Build();
 
-            bool enableDebug = config.GetValue<bool>("AppSettings:EnableDebugMode");
-            Log.Logger = new LoggerConfiguration()
-                 .MinimumLevel.Is(enableDebug ? Serilog.Events.LogEventLevel.Debug : Serilog.Events.LogEventLevel.Information)
-                 .Enrich.FromLogContext()
-                 .Enrich.WithProcessId()
-                 .Enrich.WithThreadId()
-                 .WriteTo.Console(outputTemplate:
-                     "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{ProcessId}] [{ThreadId}] {Message:lj}{NewLine}{Exception}")
-                 .WriteTo.File(
-                     path: Path.Combine("Logs", "log_.txt"),
-                     rollingInterval: RollingInterval.Day,
-                     retainedFileCountLimit: 14,
-                     encoding: Encoding.UTF8,
-                     outputTemplate:
-                     "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{ProcessId}] [{ThreadId}] {Message:lj}{NewLine}{Exception}")
-                 .CreateLogger();
+        string logsDirectory = Path.Combine(AppDataContext.Current.AppTempDirectory, "Logs");
+        Directory.CreateDirectory(logsDirectory);
 
+        string logFilePath = Path.Combine(logsDirectory, "log_.txt");
 
+        bool enableDebug = config.GetValue<bool>("AppSettings:EnableDebugMode");
+        Log.Logger = new LoggerConfiguration()
+             .MinimumLevel.Is(enableDebug ? Serilog.Events.LogEventLevel.Debug : Serilog.Events.LogEventLevel.Information)
+             .Enrich.FromLogContext()
+             .Enrich.WithProcessId()
+             .Enrich.WithThreadId()
+             .WriteTo.Console(outputTemplate:
+                 "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{ProcessId}] [{ThreadId}] {Message:lj}{NewLine}{Exception}")
+             .WriteTo.File(
+                 path: logFilePath,
+                 fileSizeLimitBytes: 10 * 1024 * 1024,
+                 rollOnFileSizeLimit: true,
+                 rollingInterval: RollingInterval.Day,
+                 retainedFileCountLimit: 14,
+                 encoding: Encoding.UTF8,
+                 outputTemplate:
+                 "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{ProcessId}] [{ThreadId}] {Message:lj}{NewLine}{Exception}")
+             .CreateLogger();
+        try
+        {
             var host = CreateHostBuilder(args, config, enableDebug).Build();
 
             Run(host);
@@ -70,6 +74,9 @@ public static class Program
             .ConfigureAppConfiguration((context, configBuilder) =>
             {
                 configBuilder.AddConfiguration(configuration);
+
+                Log.Information($"command params:{string.Join(" ", args)}");
+
                 if (enableDebug)
                 {
                     var fullConfig = configBuilder.Build();

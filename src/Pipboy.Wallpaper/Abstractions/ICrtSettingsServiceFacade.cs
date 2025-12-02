@@ -13,6 +13,6 @@ public interface ICrtSettingsServiceFacade
     void ApplyConfig(CrtConfigDto config);
     CrtConfigDto ExportConfig();
 
-    void SaveToJson(string path);
-    void LoadFromJson(string path);
+    Task SaveToJsonAsync(string path);
+    Task LoadFromJsonAsync(string path);
 }

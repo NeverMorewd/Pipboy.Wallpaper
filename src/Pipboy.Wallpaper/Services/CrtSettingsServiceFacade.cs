@@ -1,4 +1,6 @@
-﻿using Pipboy.Wallpaper.Abstractions;
+﻿using Microsoft.Extensions.Logging;
+using Pipboy.Wallpaper.Abstractions;
+using Pipboy.Wallpaper.Framework;
 using Pipboy.Wallpaper.Models;
 using System.IO;
 using System.Text.Json;
@@ -11,23 +13,40 @@ public class CrtSettingsServiceFacade : ICrtSettingsServiceFacade
     {
         WriteIndented = true
     };
-    public CrtDataContext Data { get; }
-    public INoiseSettingsService Noise { get; }
-    public IScanBeamSettingsService ScanBeam { get; }
-    public IScanlineSettingsService Scanline { get; }
+    private static readonly string _configFile = Path.Combine(AppDataContext.Current.AppTempDirectory, "crt_config.json");
+    private readonly ILogger _logger;
 
-
-    public CrtSettingsServiceFacade(CrtDataContext data, 
-        INoiseSettingsService noiseSettingsService, 
-        IScanBeamSettingsService scanBeamSettingsService, 
-        IScanlineSettingsService scanlineSettingsService)
+    public CrtSettingsServiceFacade(CrtDataContext data,
+        INoiseSettingsService noiseSettingsService,
+        IScanBeamSettingsService scanBeamSettingsService,
+        IScanlineSettingsService scanlineSettingsService,
+        ILogger<CrtSettingsServiceFacade> logger)
     {
+        _logger = logger;
         Data = data;
         Noise = noiseSettingsService;
         ScanBeam = scanBeamSettingsService;
         Scanline = scanlineSettingsService;
-    }
 
+        _ = HandleConfigAsync();
+    }
+    public CrtDataContext Data { get; }
+    public INoiseSettingsService Noise { get; }
+    public IScanBeamSettingsService ScanBeam { get; }
+    public IScanlineSettingsService Scanline { get; }
+    private async Task HandleConfigAsync()
+    {
+        if (!File.Exists(_configFile))
+        {
+            _logger.LogInformation("Crt config file not found, creating default config file.");
+            await SaveToJsonAsync(_configFile);
+        }
+        else
+        {
+            _logger.LogInformation("Crt config file found, loading config.");
+            await LoadFromJsonAsync(_configFile);
+        }
+    }
     public CrtConfigDto ExportConfig() =>
         new()
         {
@@ -76,18 +95,18 @@ public class CrtSettingsServiceFacade : ICrtSettingsServiceFacade
     }
 
 
-    public void SaveToJson(string path)
+    public Task SaveToJsonAsync(string path)
     {
         var dto = ExportConfig();
         var json = JsonSerializer.Serialize(dto, _jsonOptions);
-        File.WriteAllText(path, json);
+        return File.WriteAllTextAsync(path, json);
     }
 
-    public void LoadFromJson(string path)
+    public async Task LoadFromJsonAsync(string path)
     {
         if (!File.Exists(path)) return;
 
-        var json = File.ReadAllText(path);
+        var json = await File.ReadAllTextAsync(path);
         var dto = JsonSerializer.Deserialize<CrtConfigDto>(json);
 
         if (dto != null)

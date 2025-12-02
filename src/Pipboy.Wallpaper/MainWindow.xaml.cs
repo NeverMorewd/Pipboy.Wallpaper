@@ -14,11 +14,13 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+#if DEBUG
         CompositionTarget.Rendering += OnRendering;
         _fpsTimer = new DispatcherTimer(TimeSpan.FromSeconds(1), 
             DispatcherPriority.Normal, 
             OnFpsTimerTick, 
             Dispatcher);
+#endif
     }
     private void OnRendering(object? sender, EventArgs e)
     {
