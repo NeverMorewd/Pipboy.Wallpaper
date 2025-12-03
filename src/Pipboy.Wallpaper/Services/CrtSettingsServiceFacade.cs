@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Pipboy.Wallpaper.Abstractions;
 using Pipboy.Wallpaper.Framework;
 using Pipboy.Wallpaper.Models;
@@ -17,20 +18,29 @@ public class CrtSettingsServiceFacade : ICrtSettingsServiceFacade
     private readonly ILogger _logger;
 
     public CrtSettingsServiceFacade(CrtDataContext data,
+        TextDataContext textDataContext,
         INoiseSettingsService noiseSettingsService,
         IScanBeamSettingsService scanBeamSettingsService,
         IScanlineSettingsService scanlineSettingsService,
+        IOptionsMonitor<CrtOptionsDto> crtOptionsMonitor,
         ILogger<CrtSettingsServiceFacade> logger)
     {
         _logger = logger;
         Data = data;
+        TextData = textDataContext;
         Noise = noiseSettingsService;
         ScanBeam = scanBeamSettingsService;
         Scanline = scanlineSettingsService;
 
-        _ = HandleConfigAsync();
+        crtOptionsMonitor.OnChange(_ => 
+        {
+            
+        });
+
+       // _ = HandleConfigAsync();
     }
     public CrtDataContext Data { get; }
+    public TextDataContext TextData { get; }
     public INoiseSettingsService Noise { get; }
     public IScanBeamSettingsService ScanBeam { get; }
     public IScanlineSettingsService Scanline { get; }
@@ -47,7 +57,7 @@ public class CrtSettingsServiceFacade : ICrtSettingsServiceFacade
             await LoadFromJsonAsync(_configFile);
         }
     }
-    public CrtConfigDto ExportConfig() =>
+    public CrtOptionsDto ExportConfig() =>
         new()
         {
             EnableNoise = Data.EnableNoise,
@@ -71,7 +81,7 @@ public class CrtSettingsServiceFacade : ICrtSettingsServiceFacade
             UseCachedRendering = Data.UseCachedRendering
         };
 
-    public void ApplyConfig(CrtConfigDto c)
+    public void ApplyConfig(CrtOptionsDto c)
     {
         Data.EnableNoise = c.EnableNoise;
         Data.NoiseDensity = c.NoiseDensity;
@@ -107,7 +117,7 @@ public class CrtSettingsServiceFacade : ICrtSettingsServiceFacade
         if (!File.Exists(path)) return;
 
         var json = await File.ReadAllTextAsync(path);
-        var dto = JsonSerializer.Deserialize<CrtConfigDto>(json);
+        var dto = JsonSerializer.Deserialize<CrtOptionsDto>(json);
 
         if (dto != null)
             ApplyConfig(dto);

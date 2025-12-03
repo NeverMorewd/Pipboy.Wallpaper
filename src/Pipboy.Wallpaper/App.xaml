@@ -3,6 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:Pipboy.Wallpaper">
     <Application.Resources>
-         
+        <Color x:Key="PipboyGreenColor">#00FF00</Color>
+        <SolidColorBrush x:Key="PipboyTextColor" Color="{StaticResource PipboyGreenColor}" />
+        <SolidColorBrush x:Key="PipboyGlowBrush" Color="{StaticResource PipboyGreenColor}" />
+        <SolidColorBrush x:Key="WallpaperBackgroundBrush" Color="#1000FF00" />
     </Application.Resources>
 </Application>

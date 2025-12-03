@@ -1,4 +1,5 @@
 ﻿using Pipboy.Wallpaper.Abstractions;
+using Pipboy.Wallpaper.Models;
 using System.Windows.Media;
 
 namespace Pipboy.Wallpaper.Services;

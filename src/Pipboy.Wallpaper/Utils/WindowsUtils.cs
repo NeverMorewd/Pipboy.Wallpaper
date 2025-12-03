@@ -1,38 +1,66 @@
 ﻿using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Interop;
-using Application = System.Windows.Application;
+using System.Windows.Media;
 
 namespace Pipboy.Wallpaper.Utils;
 
-internal class WindowsUtils
+internal static class WindowsUtils
 {
-    public static double GetTaskbarHeight()
+    public static double GetTaskbarThickness(Window? window = null)
     {
-       var window = Application.Current.MainWindow;
-       return GetTaskbarHeight(window);
-    }
-    public static double GetTaskbarHeight(Window window)
-    {
-        ArgumentNullException.ThrowIfNull(window);
+        Screen screen;
 
-        var windowHandle = new WindowInteropHelper(window).Handle;
-        var screen = Screen.FromHandle(windowHandle);
+        if (window != null)
+        {
+            var windowHandle = new WindowInteropHelper(window).Handle;
+            if (windowHandle != IntPtr.Zero)
+            {
+                screen = Screen.FromHandle(windowHandle);
+            }
+            else
+            {
+                // Handle not yet created, fall back to primary
+                screen = Screen.PrimaryScreen ?? throw new InvalidOperationException("No primary screen available.");
+            }
+        }
+        else
+        {
+            // Use primary screen when window is null or not loaded
+            screen = Screen.PrimaryScreen ?? throw new InvalidOperationException("No primary screen available.");
+        }
 
         var screenBounds = screen.Bounds;
         var workingArea = screen.WorkingArea;
 
-        int taskbarHeight = screenBounds.Height - workingArea.Height;
-        int taskbarWidth = screenBounds.Width - workingArea.Width;
+        int thickness = 0;
 
         if (workingArea.Top > screenBounds.Top)
         {
-            return workingArea.Top - screenBounds.Top;
+            thickness = workingArea.Top - screenBounds.Top; // top
         }
         else if (workingArea.Bottom < screenBounds.Bottom)
         {
-            return screenBounds.Bottom - workingArea.Bottom;
+            thickness = screenBounds.Bottom - workingArea.Bottom; // bottom
         }
-        return 0;
+        else if (workingArea.Left > screenBounds.Left)
+        {
+            thickness = workingArea.Left - screenBounds.Left; // left
+        }
+        else if (workingArea.Right < screenBounds.Right)
+        {
+            thickness = screenBounds.Right - workingArea.Right; // right
+        }
+        double dpiScaleY = 1.0;
+        if (window != null)
+        {
+            dpiScaleY = VisualTreeHelper.GetDpi(window).DpiScaleY;
+        }
+        else
+        {
+            //ignore 
+        }
+
+        return thickness / dpiScaleY;
     }
 }

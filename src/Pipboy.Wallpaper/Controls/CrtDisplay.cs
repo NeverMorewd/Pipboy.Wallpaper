@@ -34,7 +34,7 @@ public class CrtDisplay : Decorator
     private int _frameCount = 0;
     private double _lastFpsUpdateTime = 0;
     private int _currentFps = 0;
-    private static readonly double _taskBarHeight = WindowsUtils.GetTaskbarHeight();
+    private static readonly double _taskBarHeight = WindowsUtils.GetTaskbarThickness();
 
     private readonly SolidColorBrush[] _noiseBrushCache = new SolidColorBrush[256];
     private double _lastCachedNoiseOpacity = -1;

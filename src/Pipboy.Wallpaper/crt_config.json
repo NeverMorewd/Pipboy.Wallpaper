@@ -1,0 +1,30 @@
+{
+  "CrtOptions":
+  {
+    "EnableNoise": true,
+    "NoiseDensity": 0.01,
+    "NoiseOpacity": 0.3,
+    "NoisePixelSize": 3,
+    "NoiseRefreshRate": 50,
+    "EnableScanBeamBlur": true,
+    "ScanBeamColor": "#5000FFFF",
+    "ScanBeamHeight": 100,
+    "EnableScanlineAnimation": true,
+    "ScanlineAnimRefreshRate": 16,
+    "ScanlineAnimSpeed": 100,
+    "ScanlineColor": "#2300FFFF",
+    "ScanlineHeight": 5,
+    "ScanlineSpacing": 15,
+    "UseCachedRendering": true
+  },
+  "TextOptions":
+  {
+    "Title": "1984",
+    "Content": "BIG BROTHER IS WATCHING YOU",
+    "ShowDatetime": true,
+    "ShowFps": true,
+    "ForegroundColor":"#FF00FF00",
+    "ContentFontSize":90,
+    "FontFamily":"Courier New"
+  }
+}

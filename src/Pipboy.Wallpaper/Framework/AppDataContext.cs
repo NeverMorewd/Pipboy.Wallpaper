@@ -24,4 +24,7 @@ internal sealed partial class AppDataContext : ReactiveObject
                     AppName);
 
     public string Version { get; } = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown";
+
+    public const string ConfigFileName = "crt_config.json";
+    public const string AppSettingsFileName = "appsettings.json";
 }

@@ -1,4 +1,5 @@
 ﻿using Pipboy.Wallpaper.Abstractions;
+using Pipboy.Wallpaper.Models;
 
 namespace Pipboy.Wallpaper.Services;
 

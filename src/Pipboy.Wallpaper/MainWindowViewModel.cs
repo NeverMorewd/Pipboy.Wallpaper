@@ -1,5 +1,5 @@
 ﻿using Pipboy.Wallpaper.Abstractions;
-using Pipboy.Wallpaper.Framework;
+using Pipboy.Wallpaper.Models;
 using Pipboy.Wallpaper.Utils;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
@@ -13,19 +13,12 @@ internal partial class MainWindowViewModel : ReactiveObject
     {
         _crtSettingsServiceFacade = crtSettingsServiceFacade;
         CrtDataContext = _crtSettingsServiceFacade.Data;
-        TaskbarHeight = WindowsUtils.GetTaskbarHeight();
-
-#if DEBUG
-        Version = AppDataContext.Current.Version;
-#endif
+        TextDataContext = _crtSettingsServiceFacade.TextData;
+        TaskbarHeight = WindowsUtils.GetTaskbarThickness();
     }
     public CrtDataContext CrtDataContext { get;}
-    [Reactive]
-    private string _title = "Pipboy Wallpaper";
-    [Reactive]
-    private string _version = "";
-    [Reactive]
-    private string _content = "Welcome to Pipboy Wallpaper!";
+    public TextDataContext TextDataContext { get; }
+
     [Reactive]
     private double _taskbarHeight;
 }
