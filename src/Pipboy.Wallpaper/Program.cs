@@ -20,44 +20,8 @@ public static class Program
     {
         Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
 
-        if (File.Exists(AppDataContext.ConfigFileName))
-        {
-            File.Copy(AppDataContext.ConfigFileName, Path.Combine(AppDataContext.Current.AppTempDirectory, "crt_config.json"), true);
-        }
-
-
-        AttachConsole(ATTACH_PARENT_PROCESS);
-        var config = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile(Path.Combine(AppDataContext.Current.AppTempDirectory,"crt_config.json"), optional: true, reloadOnChange: true)
-                .AddCommandLine(args)
-                .AddEnvironmentVariables()
-                .Build();
-
-        string logsDirectory = Path.Combine(AppDataContext.Current.AppTempDirectory, "Logs");
-        Directory.CreateDirectory(logsDirectory);
-
-        string logFilePath = Path.Combine(logsDirectory, "log_.txt");
-
-        bool enableDebug = config.GetValue<bool>("AppSettings:EnableDebugMode");
-        Log.Logger = new LoggerConfiguration()
-             .MinimumLevel.Is(enableDebug ? Serilog.Events.LogEventLevel.Debug : Serilog.Events.LogEventLevel.Information)
-             .Enrich.FromLogContext()
-             .Enrich.WithProcessId()
-             .Enrich.WithThreadId()
-             .WriteTo.Console(outputTemplate:
-                 "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{ProcessId}] [{ThreadId}] {Message:lj}{NewLine}{Exception}")
-             .WriteTo.File(
-                 path: logFilePath,
-                 fileSizeLimitBytes: 10 * 1024 * 1024,
-                 rollOnFileSizeLimit: true,
-                 rollingInterval: RollingInterval.Day,
-                 retainedFileCountLimit: 14,
-                 encoding: Encoding.UTF8,
-                 outputTemplate:
-                 "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{ProcessId}] [{ThreadId}] {Message:lj}{NewLine}{Exception}")
-             .CreateLogger();
+        var (config, enableDebug) = PrepareEnvrionment(args);
+        
         try
         {
             var host = CreateHostBuilder(args, config, enableDebug).Build();
@@ -130,6 +94,57 @@ public static class Program
     private static void Run(IHost host)
     {
         host.RunWpfApplication<App>();
+    }
+
+
+    private static (IConfigurationRoot, bool) PrepareEnvrionment(string[] args)
+    {
+        try
+        {
+            if (File.Exists(AppDataContext.ConfigFileName))
+            {
+                File.Copy(AppDataContext.ConfigFileName, Path.Combine(AppDataContext.Current.AppTempDirectory, "crt_config.json"), true);
+            }
+        }
+        catch
+        {
+            //ignore
+        }
+
+
+        AttachConsole(ATTACH_PARENT_PROCESS);
+        var config = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile(Path.Combine(AppDataContext.Current.AppTempDirectory, "crt_config.json"), optional: true, reloadOnChange: true)
+                .AddCommandLine(args)
+                .AddEnvironmentVariables()
+                .Build();
+
+        string logsDirectory = Path.Combine(AppDataContext.Current.AppTempDirectory, "Logs");
+        Directory.CreateDirectory(logsDirectory);
+
+        string logFilePath = Path.Combine(logsDirectory, "log_.txt");
+
+        bool enableDebug = config.GetValue<bool>("AppSettings:EnableDebugMode");
+        Log.Logger = new LoggerConfiguration()
+             .MinimumLevel.Is(enableDebug ? Serilog.Events.LogEventLevel.Debug : Serilog.Events.LogEventLevel.Information)
+             .Enrich.FromLogContext()
+             .Enrich.WithProcessId()
+             .Enrich.WithThreadId()
+             .WriteTo.Console(outputTemplate:
+                 "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{ProcessId}] [{ThreadId}] {Message:lj}{NewLine}{Exception}")
+             .WriteTo.File(
+                 path: logFilePath,
+                 fileSizeLimitBytes: 10 * 1024 * 1024,
+                 rollOnFileSizeLimit: true,
+                 rollingInterval: RollingInterval.Day,
+                 retainedFileCountLimit: 14,
+                 encoding: Encoding.UTF8,
+                 outputTemplate:
+                 "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{ProcessId}] [{ThreadId}] {Message:lj}{NewLine}{Exception}")
+             .CreateLogger();
+        return (config, enableDebug);
     }
 
     internal const uint ATTACH_PARENT_PROCESS = 0xFFFFFFFF;
