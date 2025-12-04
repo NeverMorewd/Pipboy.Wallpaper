@@ -18,6 +18,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Effects\Shaders\magnify.ps" />
+    <None Remove="testbg.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0" />
     <PackageReference Include="ReactiveUI.SourceGenerators" Version="2.5.1">
@@ -39,10 +44,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Effects\Shaders\magnify.ps" />
+    <Resource Include="testbg.jpg" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="crt_config.json">
+    <None Update="config.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="preview.gif">

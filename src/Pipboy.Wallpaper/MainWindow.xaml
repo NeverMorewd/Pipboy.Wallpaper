@@ -13,10 +13,13 @@
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </Window.Resources>
-
-    <controls:CrtDisplay
+    <Grid x:Name="MainBorder">
+        <!--<Grid.Background>
+            <ImageBrush ImageSource="/testbg.jpg" Stretch="UniformToFill"/>
+        </Grid.Background>-->
+        <controls:CrtDisplay
         x:Name="MyCrtDisplay"
-        DataContext="{Binding CrtDataContext}"
+        DataContext="{Binding EffectDataContext}"
         EnableFlicker="True"
         EnableNoise="{Binding EnableNoise}"
         EnableScanBeamBlur="{Binding EnableScanBeamBlur}"
@@ -35,35 +38,35 @@
         ShowFps="True"
         UseCachedRendering="{Binding UseCachedRendering}">
 
-        <Grid DataContext="{Binding ElementName=Root, Path=DataContext}">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-                <RowDefinition Height="100" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+            <Grid DataContext="{Binding ElementName=Root, Path=DataContext}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="100" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
-            <TextBlock
+                <TextBlock
                 Grid.Row="0"
                 Margin="20"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Top"
                 FontSize="32"
                 Foreground="{DynamicResource PipboyTextColor}">
-                <TextBlock.Text>
-                    <Binding Path="TextDataContext.Title" />
-                </TextBlock.Text>
-                <TextBlock.Effect>
-                    <DropShadowEffect
+                    <TextBlock.Text>
+                        <Binding Path="TextDataContext.Title" />
+                    </TextBlock.Text>
+                    <TextBlock.Effect>
+                        <DropShadowEffect
                         BlurRadius="5"
                         Direction="0"
                         Opacity="0.6"
                         ShadowDepth="0"
                         Color="{DynamicResource PipboyGreenColor}" />
-                </TextBlock.Effect>
-            </TextBlock>
+                    </TextBlock.Effect>
+                </TextBlock>
 
-            <TextBlock
+                <TextBlock
                 Grid.Row="1"
                 MaxWidth="700"
                 Margin="20"
@@ -74,38 +77,40 @@
                 Text="{Binding TextDataContext.Content}"
                 TextWrapping="Wrap" />
 
-            <StackPanel
+                <StackPanel
                 Grid.Row="2"
                 Margin="0,0,0,10"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Bottom">
 
-                <TextBlock
+                    <TextBlock
                     x:Name="CurrentDateTimeTextBlock"
                     FontSize="18"
                     FontWeight="Bold"
                     Foreground="{DynamicResource PipboyTextColor}"
                     Text="{Binding TextDataContext.CurrentDateTimeString}"
                     Visibility="{Binding TextDataContext.ShowDatetime, Converter={StaticResource BooleanToVisibilityConverter}}">
-                    <TextBlock.Effect>
-                        <DropShadowEffect
+                        <TextBlock.Effect>
+                            <DropShadowEffect
                             BlurRadius="5"
                             Direction="0"
                             Opacity="0.6"
                             ShadowDepth="0"
                             Color="{DynamicResource PipboyGreenColor}" />
-                    </TextBlock.Effect>
-                </TextBlock>
+                        </TextBlock.Effect>
+                    </TextBlock>
 
-                <TextBlock
+                    <TextBlock
                     Margin="0,5,0,0"
                     FontSize="11"
                     FontWeight="Bold"
                     Foreground="{DynamicResource PipboyTextColor}"
                     Text="{Binding TextDataContext.Version}" />
-            </StackPanel>
+                </StackPanel>
 
-            <Border Grid.Row="3" Height="{Binding TaskbarHeight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-        </Grid>
-    </controls:CrtDisplay>
+                <Border Grid.Row="3" Height="{Binding TaskbarHeight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            </Grid>
+        </controls:CrtDisplay>
+        <TextBlock Foreground="Red"  FontSize="50"  Text="haha" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+    </Grid>
 </Window>

@@ -1,22 +1,27 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Pipboy.Wallpaper.Framework;
+using Pipboy.Wallpaper.Models;
 using ReactiveUI;
 using ReactiveUI.SourceGenerators;
 using System.Windows.Media;
 using System.Windows.Threading;
 
-namespace Pipboy.Wallpaper.Models;
+namespace Pipboy.Wallpaper.ViewModels;
 
-public partial class TextDataContext : ReactiveObject
+public partial class TextViewModel : ReactiveObject
 {
-    private readonly IOptionsMonitor<TextOptionsDto> _textOptionsMonitor;
+    private readonly IOptionsMonitor<TextOptionsModel> _textOptionsMonitor;
     private readonly DispatcherTimer _timer;
-    public TextDataContext(IOptionsMonitor<TextOptionsDto> textOptionsMonitor)
+    private readonly ILogger _logger;
+    public TextViewModel(IOptionsMonitor<TextOptionsModel> textOptionsMonitor, ILogger<TextViewModel> logger)
     {
         _textOptionsMonitor = textOptionsMonitor;
+        _logger = logger;
         UpdateFromOptions(_textOptionsMonitor.CurrentValue);
         _textOptionsMonitor.OnChange(options =>
         {
+            _logger.LogInformation("Text options changed, updating TextDataContext.");
             UpdateFromOptions(options);
         });
         _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
@@ -51,7 +56,7 @@ public partial class TextDataContext : ReactiveObject
     private int _contentFontSize = 30;
 
 
-    private void UpdateFromOptions(TextOptionsDto options)
+    private void UpdateFromOptions(TextOptionsModel options)
     {
         Title = options.Title;
         Content = options.Content;

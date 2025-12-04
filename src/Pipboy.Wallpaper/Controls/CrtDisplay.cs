@@ -9,11 +9,6 @@ using System.Windows.Threading;
 
 namespace Pipboy.Wallpaper.Controls;
 
-/// <summary>
-/// CPU-rendered CRT display with stable scanline animation and optional noise caching.
-/// When UseCachedRendering=true, scanline animation is achieved by vertically shifting and wrapping the cached image.
-/// Includes an optional FPS counter in the bottom-right corner.
-/// </summary>
 public class CrtDisplay : Decorator
 {
     private readonly Random _random = new();
@@ -79,7 +74,7 @@ public class CrtDisplay : Decorator
 
     public static readonly DependencyProperty NoiseRefreshRateProperty =
         DependencyProperty.Register(nameof(NoiseRefreshRate), typeof(int), typeof(CrtDisplay),
-            new FrameworkPropertyMetadata(50));
+            new FrameworkPropertyMetadata(50, OnNoiseRefreshRatePropChanged));
 
     public static readonly DependencyProperty EnableScanlineAnimationProperty =
         DependencyProperty.Register(nameof(EnableScanlineAnimation), typeof(bool), typeof(CrtDisplay),
@@ -132,6 +127,7 @@ public class CrtDisplay : Decorator
     public double FlickerIntensity { get => (double)GetValue(FlickerIntensityProperty); set => SetValue(FlickerIntensityProperty, value); }
     public bool ShowFps { get => (bool)GetValue(ShowFpsProperty); set => SetValue(ShowFpsProperty, value); }
 
+
     private static void OnScanlinePropChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         if (d is CrtDisplay c)
@@ -140,7 +136,16 @@ public class CrtDisplay : Decorator
             c.InvalidateVisual();
         }
     }
-
+    private static void OnNoiseRefreshRatePropChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is CrtDisplay c)
+        {
+            if (c._noiseTimer != null)
+            {
+                c._noiseTimer.Interval = TimeSpan.FromMilliseconds(c.NoiseRefreshRate);
+            }
+        }
+    }
     protected override void OnVisualParentChanged(DependencyObject oldParent)
     {
         base.OnVisualParentChanged(oldParent);
@@ -258,6 +263,7 @@ public class CrtDisplay : Decorator
         {
             DrawFps(dc, rect);
         }
+
     }
 
     private void DrawFps(DrawingContext dc, Rect rect)

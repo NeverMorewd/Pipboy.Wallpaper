@@ -6,6 +6,7 @@ using Pipboy.Wallpaper.Abstractions;
 using Pipboy.Wallpaper.Framework;
 using Pipboy.Wallpaper.Models;
 using Pipboy.Wallpaper.Services;
+using Pipboy.Wallpaper.ViewModels;
 using Serilog;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -66,17 +67,15 @@ public static class Program
             })
             .ConfigureServices((context, services) =>
             {
-                services.Configure<CrtOptionsDto>(context.Configuration.GetSection("CrtOptions"));
-                services.Configure<TextOptionsDto>(context.Configuration.GetSection("TextOptions"));
+                services.Configure<SystemOptionsModel>(context.Configuration.GetSection("SystemOptions"));
+                services.Configure<EffectOptionsModel>(context.Configuration.GetSection("EffectOptions"));
+                services.Configure<TextOptionsModel>(context.Configuration.GetSection("TextOptions"));
                 services.AddSingleton<IHostLifetime, WpfApplicationLifetime<App>>();
                 services.AddSingleton<MainWindow>();
-                services.AddSingleton<MainWindowViewModel>();
-                services.AddSingleton<ICrtSettingsServiceFacade, CrtSettingsServiceFacade>()
-                        .AddTransient<IScanlineSettingsService, ScanlineSettingsService>()
-                        .AddTransient<IScanBeamSettingsService, ScanBeamSettingsService>()
-                        .AddTransient<INoiseSettingsService, NoiseSettingsService>()
-                        .AddSingleton<TextDataContext>()
-                        .AddSingleton<CrtDataContext>();
+                services.AddSingleton<MainWindowViewModel>()
+                        .AddSingleton<TextViewModel>()
+                        .AddSingleton<EffectViewModel>()
+                        .AddSingleton<IDataContextFacade, DataContextFacade>();
 
                 services.AddSingleton(provider =>
                 {
@@ -101,9 +100,9 @@ public static class Program
     {
         try
         {
-            if (File.Exists(AppDataContext.ConfigFileName))
+            if (!File.Exists(AppDataContext.ConfigFileName))
             {
-                File.Copy(AppDataContext.ConfigFileName, Path.Combine(AppDataContext.Current.AppTempDirectory, "crt_config.json"), true);
+                File.Copy(AppDataContext.ConfigFileName, Path.Combine(AppDataContext.Current.AppTempDirectory, AppDataContext.ConfigFileName), true);
             }
         }
         catch
@@ -115,8 +114,8 @@ public static class Program
         AttachConsole(ATTACH_PARENT_PROCESS);
         var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile(Path.Combine(AppDataContext.Current.AppTempDirectory, "crt_config.json"), optional: true, reloadOnChange: true)
+                .AddJsonFile(AppDataContext.AppSettingsFileName, optional: true, reloadOnChange: true)
+                .AddJsonFile(Path.Combine(AppDataContext.Current.AppTempDirectory, AppDataContext.ConfigFileName), optional: true, reloadOnChange: true)
                 .AddCommandLine(args)
                 .AddEnvironmentVariables()
                 .Build();

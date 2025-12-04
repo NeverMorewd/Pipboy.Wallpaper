@@ -4,7 +4,7 @@ using System.Windows.Media;
 
 namespace Pipboy.Wallpaper.Models;
 
-public class TextOptionsDto
+public class TextOptionsModel
 {
     public string Title { get; set; } = "1984";
     public string Content { get; set; } = "BIG BROTHER IS WATCHING YOU";

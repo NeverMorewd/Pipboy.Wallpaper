@@ -4,7 +4,7 @@ using System.Windows.Media;
 
 namespace Pipboy.Wallpaper.Models;
 
-public class CrtOptionsDto
+public class EffectOptionsModel
 {
     public bool EnableNoise { get; set; }
     public double NoiseDensity { get; set; }
@@ -31,11 +31,9 @@ public class CrtOptionsDto
     }
 
     public double ScanBeamHeight { get; set; }
-
     public bool EnableScanlineAnimation { get; set; }
     public int ScanlineAnimRefreshRate { get; set; }
     public double ScanlineAnimSpeed { get; set; }
-
     private string _scanlineColorHex = "#2300FF00";
 
     [JsonIgnore]

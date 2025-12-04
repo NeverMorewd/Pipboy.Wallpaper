@@ -1,7 +1,6 @@
-{
-  "CrtOptions":
-  {
-    "EnableNoise": true,
+﻿{
+  "EffectOptions": {
+    "EnableNoise": false,
     "NoiseDensity": 0.01,
     "NoiseOpacity": 0.3,
     "NoisePixelSize": 3,
@@ -17,14 +16,16 @@
     "ScanlineSpacing": 15,
     "UseCachedRendering": true
   },
-  "TextOptions":
-  {
+  "TextOptions": {
     "Title": "1984",
     "Content": "BIG BROTHER IS WATCHING YOU",
     "ShowDatetime": true,
     "ShowFps": true,
-    "ForegroundColor":"#FF00FF00",
-    "ContentFontSize":90,
-    "FontFamily":"Courier New"
+    "ForegroundColor": "#FF00FF00",
+    "ContentFontSize": 90,
+    "FontFamily": "Courier New"
+  },
+  "SystemOptions": {
+    "EnableGpuAcceleration": true
   }
 }
